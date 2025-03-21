@@ -100,3 +100,58 @@ def get_dataset_info(dataset_path, filter_key=None, verbose=True):
             break
 
     f.close()
+
+def load_dataset_to_dict(dataset_path):
+    """
+    Loads the dataset from the given HDF5 file and returns it as a dictionary 
+    organized by demonstration IDs.
+
+    The structure of the returned dictionary is:
+    
+        data = {
+            "demo_0": {
+                "actions": np.array(...),
+                "dones": np.array(...),
+                "obs": {
+                    "agentview_rgb": np.array(...),
+                    "ee_ori": np.array(...),
+                    ... (other observation keys)
+                },
+                "rewards": np.array(...),
+                "robot_states": np.array(...),
+                "states": np.array(...)
+            },
+            "demo_1": { ... },
+            ...
+        }
+
+    Parameters:
+        dataset_path (str): Path to the HDF5 dataset file.
+
+    Returns:
+        dict: A dictionary containing the dataset in a structure easy to use for training.
+    """
+    data_dict = {}
+    with h5py.File(dataset_path, "r") as f:
+        # Get demonstration IDs sorted by numerical order, assuming IDs are like "demo_0", "demo_1", etc.
+        demos = sorted(list(f["data"].keys()), key=lambda x: int(x.split("_")[-1]))
+        for demo in demos:
+            demo_group = f["data"][demo]
+            demo_data = {}
+            # Extract direct dataset keys
+            for key in ["actions", "dones", "rewards", "robot_states", "states"]:
+                if key in demo_group:
+                    demo_data[key] = demo_group[key][()]
+            # For observations, which are stored as a group
+            if "obs" in demo_group:
+                obs_group = demo_group["obs"]
+                obs_data = {}
+                for obs_key in obs_group.keys():
+                    obs_data[obs_key] = obs_group[obs_key][()]
+                demo_data["obs"] = obs_data
+            data_dict[demo] = demo_data
+    
+    print("Dataset keys: ", data_dict.keys())
+    print("Demo keys: ", data_dict["demo_1"].keys())
+    print("Demo obs keys: ", data_dict["demo_1"]["obs"].keys())
+    return data_dict
