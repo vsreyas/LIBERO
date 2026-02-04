@@ -1,0 +1,5 @@
+assets: /home/sreyasv/Projects/jflow_match/bc_flowmatch/LIBERO/libero/libero/./assets
+bddl_files: /home/sreyasv/Projects/jflow_match/bc_flowmatch/LIBERO/libero/libero/./bddl_files
+benchmark_root: /home/sreyasv/Projects/jflow_match/bc_flowmatch/LIBERO/libero/libero
+datasets: /data/hf_cache/datasets/LIBERO
+init_states: /home/sreyasv/Projects/jflow_match/bc_flowmatch/LIBERO/libero/libero/./init_files
